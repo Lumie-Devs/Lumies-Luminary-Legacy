@@ -9,6 +9,17 @@ public class PlayerMovement : MonoBehaviour {
     // private Animator anim;
     private SpriteRenderer sr;
     private Vector2 moveInput;
+    public float jumpSpeed = 25f;
+    public float jumpHeight = 5f;
+
+    public Transform leftCheck;
+    public Transform middleCheck;
+    public Transform rightCheck;
+    public float groundCheckDistance = 0.1f;
+    public LayerMask surfaceLayer;
+    private float initialJumpPosition;
+    private bool isGrounded = false;
+    private bool isJumping = false;
 
     // private AudioSource audioSource;
     // [SerializeField] private AudioClip walkSound;
@@ -62,7 +73,12 @@ public class PlayerMovement : MonoBehaviour {
 
     private void Jump(InputAction.CallbackContext context)
     {
-
+        if (isGrounded)
+        {
+            initialJumpPosition = transform.position.y;
+            rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
+            isJumping = true;
+        }
     }
 
     private void DoAction(InputAction.CallbackContext context)
@@ -79,12 +95,35 @@ public class PlayerMovement : MonoBehaviour {
     private void FixedUpdate()
     {
         Movement();
+        GroundCheck();
+        ControlJump();
     }
 
     private void Movement()
     {
+
+
         float moveX = moveInput.x * speed;
         rb.velocity = new Vector2(moveX, rb.velocity.y);
+    }
+
+    private void GroundCheck()
+    {
+        bool leftGrounded = Physics2D.Raycast(leftCheck.position, Vector2.down, groundCheckDistance, surfaceLayer);
+        bool middleGrounded = Physics2D.Raycast(middleCheck.position, Vector2.down, groundCheckDistance, surfaceLayer);
+        bool rightGrounded = Physics2D.Raycast(rightCheck.position, Vector2.down, groundCheckDistance, surfaceLayer);
+
+        isGrounded = leftGrounded || middleGrounded || rightGrounded;
+
+    }
+
+    private void ControlJump()
+    {
+        if (isJumping && transform.position.y >= initialJumpPosition + jumpHeight)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, 0f);
+            isJumping = false; // Reset jumping flag
+        }
     }
 
     // public void PlayMoveSound()
