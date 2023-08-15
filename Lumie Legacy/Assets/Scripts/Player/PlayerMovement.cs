@@ -3,10 +3,9 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour {
     public float speed = 5f;
-    public float sprint = 1.8f;
 
     private InputActions actions;
-    private Rigidbody rb;
+    private Rigidbody2D rb;
     // private Animator anim;
     private SpriteRenderer sr;
     private Vector2 moveInput;
@@ -16,7 +15,7 @@ public class PlayerMovement : MonoBehaviour {
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
         // anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
         // audioSource = GetComponent<AudioSource>();
@@ -30,11 +29,15 @@ public class PlayerMovement : MonoBehaviour {
 
         actions.Player.Direction.performed += MoveCharacter;
         actions.Player.Direction.canceled += StopCharacter;
+        actions.Player.Action.performed += DoAction;
+        actions.Player.Jump.performed += Jump;
     }
 
     private void OnDisable() {
         actions.Player.Direction.performed -= MoveCharacter;
         actions.Player.Direction.canceled -= StopCharacter;
+        actions.Player.Action.performed -= DoAction;
+        actions.Player.Jump.performed -= Jump;
 
         actions.Player.Disable();
 
@@ -57,6 +60,16 @@ public class PlayerMovement : MonoBehaviour {
         CancelMovement();
     }
 
+    private void Jump(InputAction.CallbackContext context)
+    {
+
+    }
+
+    private void DoAction(InputAction.CallbackContext context)
+    {
+
+    }
+
     private void CancelMovement()
     {
         moveInput = Vector2.zero;
@@ -70,11 +83,8 @@ public class PlayerMovement : MonoBehaviour {
 
     private void Movement()
     {
-        Vector3 moveDirection = new Vector3(moveInput.x, 0, 0).normalized;
-
-        // float speedToUse = isSprinting ? speed * sprint : speed;
-
-        rb.velocity = moveDirection * speed;
+        float moveX = moveInput.x * speed;
+        rb.velocity = new Vector2(moveX, rb.velocity.y);
     }
 
     // public void PlayMoveSound()
