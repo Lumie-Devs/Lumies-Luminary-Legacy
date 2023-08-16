@@ -11,11 +11,11 @@ public class PlayerMovement : MonoBehaviour {
     private Vector2 moveInput;
 
     public float speed = 9f;
-    public float jumpSpeed = 25f;
+    public float jumpSpeed = 35f;
     public float jumpHeight = 5f;
     
-    public float dashSpeed = 30f;
-    public float dashDuration = 0.1f;
+    public float dashSpeed = 20f;
+    public float dashDuration = 0.07f;
     public float dashCooldown = .5f;
 
     public float groundCheckDistance = 0.1f;
@@ -29,6 +29,7 @@ public class PlayerMovement : MonoBehaviour {
     private bool isGrounded = false;
     private bool isJumping = false;
     private float initialJumpPosition;
+    private float originalGravityScale;
 
     // private AudioSource audioSource;
     // [SerializeField] private AudioClip walkSound;
@@ -39,6 +40,8 @@ public class PlayerMovement : MonoBehaviour {
         // anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
         // audioSource = GetComponent<AudioSource>();
+
+        originalGravityScale = rb.gravityScale;
 
         actions = new InputActions();
     }
@@ -151,22 +154,30 @@ public class PlayerMovement : MonoBehaviour {
         isDashing = true;
         canDash = false;
 
-        // Save current velocity
-        Vector2 originalVelocity = rb.velocity;
+        // Disable gravity for the Rigidbody2D component
+        rb.gravityScale = 0f;
 
         // Determine dash direction based on the sprite's orientation
         Vector2 dashDirection = sr.flipX ? Vector2.left : Vector2.right;
 
-        // Apply dash force
-        rb.velocity = dashDirection * dashSpeed;
+        // Apply dash force, maintaining the current y velocity
+        rb.velocity = new Vector2(dashDirection.x * dashSpeed, 0f);
+        
 
         // Wait for the dash duration
         yield return new WaitForSeconds(dashDuration);
 
+        rb.gravityScale = originalGravityScale;
+
         // Reset velocity to what it was before the dash
-        rb.velocity = originalVelocity;
+        rb.velocity = Vector2.zero;
 
         isDashing = false;
+
+        while (!isGrounded)
+        {
+            yield return null;
+        }
 
         // Wait for the cooldown
         yield return new WaitForSeconds(dashCooldown);
