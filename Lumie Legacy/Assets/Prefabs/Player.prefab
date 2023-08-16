@@ -227,11 +227,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e060f83fd8e9d343a1124c5c8a474e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  speed: 9
+  jumpSpeed: 25
+  jumpHeight: 5
+  dashSpeed: 30
+  dashDuration: 0.1
+  dashCooldown: 0.5
+  groundCheckDistance: 0.1
   leftCheck: {fileID: 9194624123663352119}
   middleCheck: {fileID: 1406185939133615266}
   rightCheck: {fileID: 1361855268320593095}
-  groundCheckDistance: 0.1
   surfaceLayer:
     serializedVersion: 2
     m_Bits: 8

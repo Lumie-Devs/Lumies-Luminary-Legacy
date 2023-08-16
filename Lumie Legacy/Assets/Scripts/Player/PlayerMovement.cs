@@ -1,25 +1,34 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour {
-    public float speed = 5f;
 
     private InputActions actions;
     private Rigidbody2D rb;
     // private Animator anim;
     private SpriteRenderer sr;
     private Vector2 moveInput;
+
+    public float speed = 9f;
     public float jumpSpeed = 25f;
     public float jumpHeight = 5f;
+    
+    public float dashSpeed = 30f;
+    public float dashDuration = 0.1f;
+    public float dashCooldown = .5f;
 
+    public float groundCheckDistance = 0.1f;
     public Transform leftCheck;
     public Transform middleCheck;
     public Transform rightCheck;
-    public float groundCheckDistance = 0.1f;
     public LayerMask surfaceLayer;
-    private float initialJumpPosition;
+
+    private bool canDash = true;
+    private bool isDashing = false;
     private bool isGrounded = false;
     private bool isJumping = false;
+    private float initialJumpPosition;
 
     // private AudioSource audioSource;
     // [SerializeField] private AudioClip walkSound;
@@ -42,6 +51,7 @@ public class PlayerMovement : MonoBehaviour {
         actions.Player.Direction.canceled += StopCharacter;
         actions.Player.Action.performed += DoAction;
         actions.Player.Jump.performed += Jump;
+        actions.Player.Dash.performed += Dash;
     }
 
     private void OnDisable() {
@@ -49,6 +59,7 @@ public class PlayerMovement : MonoBehaviour {
         actions.Player.Direction.canceled -= StopCharacter;
         actions.Player.Action.performed -= DoAction;
         actions.Player.Jump.performed -= Jump;
+        actions.Player.Dash.performed -= Dash;
 
         actions.Player.Disable();
 
@@ -81,6 +92,14 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+    private void Dash(InputAction.CallbackContext context)
+    {
+        if (canDash && moveInput.x != 0)
+        {
+            StartCoroutine(DashCoroutine());
+        }
+    }
+
     private void DoAction(InputAction.CallbackContext context)
     {
 
@@ -101,7 +120,7 @@ public class PlayerMovement : MonoBehaviour {
 
     private void Movement()
     {
-
+        if (isDashing) return;
 
         float moveX = moveInput.x * speed;
         rb.velocity = new Vector2(moveX, rb.velocity.y);
@@ -124,6 +143,36 @@ public class PlayerMovement : MonoBehaviour {
             rb.velocity = new Vector2(rb.velocity.x, 0f);
             isJumping = false; // Reset jumping flag
         }
+    }
+
+    private IEnumerator DashCoroutine()
+    {
+        // Set canDash to false to prevent dashing again until cooldown
+        isDashing = true;
+        canDash = false;
+
+        // Save current velocity
+        Vector2 originalVelocity = rb.velocity;
+
+        // Determine dash direction based on the sprite's orientation
+        Vector2 dashDirection = sr.flipX ? Vector2.left : Vector2.right;
+
+        // Apply dash force
+        rb.velocity = dashDirection * dashSpeed;
+
+        // Wait for the dash duration
+        yield return new WaitForSeconds(dashDuration);
+
+        // Reset velocity to what it was before the dash
+        rb.velocity = originalVelocity;
+
+        isDashing = false;
+
+        // Wait for the cooldown
+        yield return new WaitForSeconds(dashCooldown);
+
+        // Allow dashing again
+        canDash = true;
     }
 
     // public void PlayMoveSound()
