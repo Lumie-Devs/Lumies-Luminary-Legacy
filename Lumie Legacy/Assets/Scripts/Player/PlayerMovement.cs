@@ -12,7 +12,8 @@ public class PlayerMovement : MonoBehaviour {
     private SpriteRenderer sr;
     private Vector2 moveInput;
 
-    public float speed = 9f;
+    public static float maxSpeed = 9f;
+    public float speed;
     public float jumpSpeed = 35f;
     public float jumpHeight = 5f;
     
@@ -26,10 +27,13 @@ public class PlayerMovement : MonoBehaviour {
     public Transform rightCheck;
     public LayerMask surfaceLayer;
 
-    private bool canDash = true;
-    private bool isDashing = false;
-    private bool isGrounded = false;
-    private bool isJumping = false;
+    public bool canDash = true;
+    public bool canJump = true;
+    public bool isDashing = false;
+    public bool isGrounded = false;
+    public bool isJumping = false;
+    public bool isComboing = false;
+    public bool isSmashing = false;
     private float initialJumpPosition;
     private float originalGravityScale;
 
@@ -46,6 +50,8 @@ public class PlayerMovement : MonoBehaviour {
         originalGravityScale = rb.gravityScale;
 
         actions = new InputActions();
+
+        speed = maxSpeed;
     }
 
     private void OnEnable()
@@ -91,12 +97,20 @@ public class PlayerMovement : MonoBehaviour {
 
     private void Jump(InputAction.CallbackContext context)
     {
-        if (isGrounded)
-        {
-            initialJumpPosition = transform.position.y;
-            rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
-            isJumping = true;
-        }
+        if (!canJump || isDashing || isSmashing) return;
+
+        if (isComboing) StopComboing();
+        
+        ApplyJump(jumpSpeed);
+    }
+
+    public void ApplyJump(float force)
+    {
+        isJumping = true;
+        canJump = false;
+
+        initialJumpPosition = transform.position.y;
+        rb.velocity = new Vector2(rb.velocity.x, force);
     }
 
     private void Dash(InputAction.CallbackContext context)
@@ -109,7 +123,7 @@ public class PlayerMovement : MonoBehaviour {
 
     private void DoAction(InputAction.CallbackContext context)
     {
-        if (isDashing) return;
+        if (isDashing || isSmashing) return;
             
         
         playerActions.DoAction(moveInput.y, isGrounded);
@@ -117,7 +131,7 @@ public class PlayerMovement : MonoBehaviour {
 
     private void DoMoveAction(InputAction.CallbackContext context)
     {
-        if (isDashing) return;
+        if (isDashing || isSmashing) return;
 
         playerMoveActions.DoAction();
     }
@@ -126,6 +140,26 @@ public class PlayerMovement : MonoBehaviour {
     {
         moveInput = Vector2.zero;
         // anim.SetBool("Moving", false);
+    }
+
+    public void Comboing(float moveSpeedDecrease)
+    {
+        isComboing = true;
+        isJumping = false;
+        speed = moveSpeedDecrease;
+    }
+
+    public void StopComboing()
+    {
+        isComboing = false;
+        speed = maxSpeed;
+    }
+
+    public void Smashing(float smashSpeed)
+    {
+        isSmashing = true;
+        isJumping = false;
+        rb.velocity = new Vector2(0, -smashSpeed);
     }
 
     private void FixedUpdate()
@@ -137,10 +171,11 @@ public class PlayerMovement : MonoBehaviour {
 
     private void Movement()
     {
-        if (isDashing) return;
+        if (isDashing || isSmashing) return;
 
         float moveX = moveInput.x * speed;
-        rb.velocity = new Vector2(moveX, rb.velocity.y);
+        float moveY = isComboing ? 0 : rb.velocity.y;
+        rb.velocity = new Vector2(moveX, moveY);
     }
 
     private void GroundCheck()
@@ -151,14 +186,25 @@ public class PlayerMovement : MonoBehaviour {
 
         isGrounded = leftGrounded || middleGrounded || rightGrounded;
 
+        if (isGrounded) 
+        {
+            playerActions.ResetAirAttacks();
+            isSmashing = false;
+
+            if (!isJumping) canJump = true;
+        }
+
     }
 
     private void ControlJump()
     {
-        if (isJumping && transform.position.y >= initialJumpPosition + jumpHeight)
+        if (isJumping && transform.position.y >= initialJumpPosition + jumpHeight || canJump)
         {
             rb.velocity = new Vector2(rb.velocity.x, 0f);
             isJumping = false; // Reset jumping flag
+        } else if (canJump && isJumping)
+        {
+            isJumping = false;
         }
     }
 
@@ -177,8 +223,6 @@ public class PlayerMovement : MonoBehaviour {
         // Apply dash force, maintaining the current y velocity
         rb.velocity = new Vector2(dashDirection.x * dashSpeed, 0f);
         
-
-        // Wait for the dash duration
         yield return new WaitForSeconds(dashDuration);
 
         rb.gravityScale = originalGravityScale;

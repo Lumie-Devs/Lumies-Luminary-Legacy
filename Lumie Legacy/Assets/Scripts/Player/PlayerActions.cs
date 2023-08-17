@@ -1,12 +1,23 @@
 using System;
+using System.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerActions : MonoBehaviour {
     [SerializeField] private PlayerMovement playerMovement;
+    private Rigidbody2D rb;
+
+    public float comboGap = .5f;
+    public float comboMovementSpeed = 5f;
+    public float hammerJumpForce = 15f;
+    public float hammerSmashSpeed = 15f;
+    public int airComboCount, groundComboCount = 0;
+
+    private Coroutine combo;
+    private bool hammerJump = false;
 
     private void Start() {
-        
+        rb = GetComponent<Rigidbody2D>();
     }
 
     public void DoAction(float inputY, bool isGrounded)
@@ -36,7 +47,23 @@ public class PlayerActions : MonoBehaviour {
 
     private void HammerSwing()
     {
-        Debug.Log("Hammer Swing");
+        switch (groundComboCount){
+            case 0:
+            combo = StartCoroutine(Comboing());
+            break;
+            case 1:
+            StopCoroutine(combo);
+            combo = StartCoroutine(Comboing());
+            break;
+            case 2:
+            StopCoroutine(combo);
+            combo = StartCoroutine(Comboing());
+            break;
+            default:
+            return;
+        }
+
+        groundComboCount++;
     }
 
     private void UppercutSwing()
@@ -51,16 +78,53 @@ public class PlayerActions : MonoBehaviour {
 
     private void AerialHammerSwing()
     {
-        Debug.Log("Aerial Hammer Swing");
+        switch (airComboCount){
+            case 0:
+            combo = StartCoroutine(Comboing());
+            break;
+            case 1:
+            StopCoroutine(combo);
+            combo = StartCoroutine(Comboing());
+            break;
+            case 2:
+            StopCoroutine(combo);
+            playerMovement.StopComboing();
+            HammerSmash();
+            airComboCount++;
+            break;
+            default:
+            return;
+        }
+
+        airComboCount++;
     }
 
     private void HammerJump()
     {
-        Debug.Log("Hammer Jump");
+        if (hammerJump) return;
+
+        playerMovement.ApplyJump(hammerJumpForce);
+        hammerJump = true;
     }
 
     private void HammerSmash()
     {
-        Debug.Log("Hammer Smash");
+        playerMovement.Smashing(hammerSmashSpeed);
+    }
+
+    public void ResetAirAttacks()
+    {
+        hammerJump = false;
+        airComboCount = 0;
+    }
+
+    private IEnumerator Comboing()
+    {
+        playerMovement.Comboing(comboMovementSpeed);
+
+        yield return new WaitForSeconds(comboGap);
+
+        playerMovement.StopComboing();
+        groundComboCount = 0;
     }
 }
