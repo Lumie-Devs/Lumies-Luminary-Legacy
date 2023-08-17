@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour {
 
+    [SerializeField] private PlayerActions playerActions;
+    [SerializeField] private PlayerMoveActions playerMoveActions;
     private InputActions actions;
     private Rigidbody2D rb;
     // private Animator anim;
@@ -53,6 +55,7 @@ public class PlayerMovement : MonoBehaviour {
         actions.Player.Direction.performed += MoveCharacter;
         actions.Player.Direction.canceled += StopCharacter;
         actions.Player.Action.performed += DoAction;
+        actions.Player.MoveAction.performed += DoMoveAction;
         actions.Player.Jump.performed += Jump;
         actions.Player.Dash.performed += Dash;
     }
@@ -61,6 +64,7 @@ public class PlayerMovement : MonoBehaviour {
         actions.Player.Direction.performed -= MoveCharacter;
         actions.Player.Direction.canceled -= StopCharacter;
         actions.Player.Action.performed -= DoAction;
+        actions.Player.MoveAction.performed -= DoMoveAction;
         actions.Player.Jump.performed -= Jump;
         actions.Player.Dash.performed -= Dash;
 
@@ -105,7 +109,17 @@ public class PlayerMovement : MonoBehaviour {
 
     private void DoAction(InputAction.CallbackContext context)
     {
+        if (isDashing) return;
+            
+        
+        playerActions.DoAction(moveInput.y, isGrounded);
+    }
 
+    private void DoMoveAction(InputAction.CallbackContext context)
+    {
+        if (isDashing) return;
+
+        playerMoveActions.DoAction();
     }
 
     private void CancelMovement()

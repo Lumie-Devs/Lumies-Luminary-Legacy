@@ -46,6 +46,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""MoveAction"",
+                    ""type"": ""Button"",
+                    ""id"": ""d316ea82-f747-40f9-9ae5-c56ff02466b3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Jump"",
                     ""type"": ""Button"",
                     ""id"": ""f9b2f2bc-61bb-44bb-9079-67443041a8b2"",
@@ -152,6 +161,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bc8fd19b-2461-4758-ae85-9224d115e997"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -162,6 +182,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Direction = m_Player.FindAction("Direction", throwIfNotFound: true);
         m_Player_Action = m_Player.FindAction("Action", throwIfNotFound: true);
+        m_Player_MoveAction = m_Player.FindAction("MoveAction", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
     }
@@ -227,6 +248,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Direction;
     private readonly InputAction m_Player_Action;
+    private readonly InputAction m_Player_MoveAction;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Dash;
     public struct PlayerActions
@@ -235,6 +257,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public PlayerActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Direction => m_Wrapper.m_Player_Direction;
         public InputAction @Action => m_Wrapper.m_Player_Action;
+        public InputAction @MoveAction => m_Wrapper.m_Player_MoveAction;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -252,6 +275,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Action.started += instance.OnAction;
             @Action.performed += instance.OnAction;
             @Action.canceled += instance.OnAction;
+            @MoveAction.started += instance.OnMoveAction;
+            @MoveAction.performed += instance.OnMoveAction;
+            @MoveAction.canceled += instance.OnMoveAction;
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
@@ -268,6 +294,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Action.started -= instance.OnAction;
             @Action.performed -= instance.OnAction;
             @Action.canceled -= instance.OnAction;
+            @MoveAction.started -= instance.OnMoveAction;
+            @MoveAction.performed -= instance.OnMoveAction;
+            @MoveAction.canceled -= instance.OnMoveAction;
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
@@ -295,6 +324,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     {
         void OnDirection(InputAction.CallbackContext context);
         void OnAction(InputAction.CallbackContext context);
+        void OnMoveAction(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
     }

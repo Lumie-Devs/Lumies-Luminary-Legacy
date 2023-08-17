@@ -137,9 +137,11 @@ GameObject:
   m_Component:
   - component: {fileID: 9014407370860298439}
   - component: {fileID: 9014407370860298438}
-  - component: {fileID: 9014407370860298437}
   - component: {fileID: 6881922353556059981}
   - component: {fileID: 9014407370860298443}
+  - component: {fileID: 9014407370860298437}
+  - component: {fileID: 6755328388212116979}
+  - component: {fileID: 6596788436235890553}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -215,31 +217,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &9014407370860298437
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9014407370860298442}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e060f83fd8e9d343a1124c5c8a474e8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 9
-  jumpSpeed: 25
-  jumpHeight: 5
-  dashSpeed: 30
-  dashDuration: 0.1
-  dashCooldown: 0.5
-  groundCheckDistance: 0.1
-  leftCheck: {fileID: 9194624123663352119}
-  middleCheck: {fileID: 1406185939133615266}
-  rightCheck: {fileID: 1361855268320593095}
-  surfaceLayer:
-    serializedVersion: 2
-    m_Bits: 8
 --- !u!50 &6881922353556059981
 Rigidbody2D:
   serializedVersion: 4
@@ -287,3 +264,55 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &9014407370860298437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9014407370860298442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e060f83fd8e9d343a1124c5c8a474e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerActions: {fileID: 6596788436235890553}
+  playerMoveActions: {fileID: 6755328388212116979}
+  speed: 9
+  jumpSpeed: 25
+  jumpHeight: 5
+  dashSpeed: 30
+  dashDuration: 0.1
+  dashCooldown: 0.5
+  groundCheckDistance: 0.1
+  leftCheck: {fileID: 9194624123663352119}
+  middleCheck: {fileID: 1406185939133615266}
+  rightCheck: {fileID: 1361855268320593095}
+  surfaceLayer:
+    serializedVersion: 2
+    m_Bits: 8
+--- !u!114 &6755328388212116979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9014407370860298442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0100e49fae06eb458a3d1670f1289f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6596788436235890553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9014407370860298442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e291d5e38f3a974bb473fbbc461bdf4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMovement: {fileID: 0}
