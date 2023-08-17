@@ -86,9 +86,12 @@ public class PlayerMovement : MonoBehaviour {
         moveInput = context.ReadValue<Vector2>();
         // anim.SetBool("Moving", true);
 
-        if (moveInput.x > 0) sr.flipX = false;
+        if (moveInput.x == 0) return;
 
-        if (moveInput.x < 0) sr.flipX = true;
+        Vector3 newScale = transform.localScale;
+        newScale.x = moveInput.x > 0 ? 1 : -1;
+
+        transform.localScale = newScale;
     }
     private void StopCharacter(InputAction.CallbackContext context)
     {
@@ -159,7 +162,8 @@ public class PlayerMovement : MonoBehaviour {
     {
         isSmashing = true;
         isJumping = false;
-        rb.velocity = new Vector2(0, -smashSpeed);
+        rb.velocity = new Vector2(rb.velocity.x, 0);
+        rb.AddForce(Vector2.down * smashSpeed, ForceMode2D.Impulse);
     }
 
     private void FixedUpdate()
@@ -171,7 +175,7 @@ public class PlayerMovement : MonoBehaviour {
 
     private void Movement()
     {
-        if (isDashing || isSmashing) return;
+        if (isDashing) return;
 
         float moveX = moveInput.x * speed;
         float moveY = isComboing ? 0 : rb.velocity.y;
@@ -198,13 +202,10 @@ public class PlayerMovement : MonoBehaviour {
 
     private void ControlJump()
     {
-        if (isJumping && transform.position.y >= initialJumpPosition + jumpHeight || canJump)
+        if (isJumping && transform.position.y >= initialJumpPosition + jumpHeight)
         {
             rb.velocity = new Vector2(rb.velocity.x, 0f);
             isJumping = false; // Reset jumping flag
-        } else if (canJump && isJumping)
-        {
-            isJumping = false;
         }
     }
 
@@ -218,7 +219,7 @@ public class PlayerMovement : MonoBehaviour {
         rb.gravityScale = 0f;
 
         // Determine dash direction based on the sprite's orientation
-        Vector2 dashDirection = sr.flipX ? Vector2.left : Vector2.right;
+        Vector2 dashDirection = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
 
         // Apply dash force, maintaining the current y velocity
         rb.velocity = new Vector2(dashDirection.x * dashSpeed, 0f);

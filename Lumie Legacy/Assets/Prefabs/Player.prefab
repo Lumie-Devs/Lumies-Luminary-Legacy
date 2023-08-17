@@ -380,7 +380,7 @@ Rigidbody2D:
   m_Material: {fileID: 6200000, guid: 19448564ee23f5f459db3ef9e3aea09c, type: 2}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!61 &9014407370860298443
 BoxCollider2D:
@@ -428,7 +428,7 @@ MonoBehaviour:
   dashSpeed: 30
   dashDuration: 0.1
   dashCooldown: 0.5
-  groundCheckDistance: 0.05
+  groundCheckDistance: 0.07
   leftCheck: {fileID: 9194624123663352119}
   middleCheck: {fileID: 1406185939133615266}
   rightCheck: {fileID: 1361855268320593095}
