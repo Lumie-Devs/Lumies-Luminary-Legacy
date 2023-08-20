@@ -7,6 +7,7 @@ using UnityEngine;
 public class PlayerActions : MonoBehaviour {
     [SerializeField] private PlayerMovement playerMovement;
     private Rigidbody2D rb;
+    private Animator anim;
     [SerializeField] private Collider2D hammerRange;
 
     public float comboGap = .5f;
@@ -29,6 +30,7 @@ public class PlayerActions : MonoBehaviour {
 
     private void Start() {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
@@ -101,7 +103,7 @@ public class PlayerActions : MonoBehaviour {
 
     private void UppercutSwing()
     {
-        Debug.Log("UpperCut Swing");
+        TriggerAnimation("Uppercut");
     }
 
     private void HammerPound()
@@ -216,5 +218,9 @@ public class PlayerActions : MonoBehaviour {
         yield return null;
     }
 
-
+    private void TriggerAnimation(string triggerName)
+    {
+        anim.SetTrigger(triggerName);
+        anim.ResetTrigger(triggerName);
+    }
 }

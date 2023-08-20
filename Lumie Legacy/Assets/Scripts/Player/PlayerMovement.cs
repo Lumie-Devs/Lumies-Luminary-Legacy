@@ -8,7 +8,7 @@ public class PlayerMovement : MonoBehaviour {
     [SerializeField] private PlayerMoveActions playerMoveActions;
     private InputActions actions;
     private Rigidbody2D rb;
-    // private Animator anim;
+    private Animator anim;
     private SpriteRenderer sr;
     private Vector2 moveInput;
 
@@ -46,7 +46,7 @@ public class PlayerMovement : MonoBehaviour {
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        // anim = GetComponent<Animator>();
+        anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
         // audioSource = GetComponent<AudioSource>();
 
@@ -87,23 +87,15 @@ public class PlayerMovement : MonoBehaviour {
     private void MoveCharacter(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
-        // anim.SetBool("Moving", true);
+        
 
-        if (!isHanging) DetermineCharacterDirection();
-    }
-
-    private void DetermineCharacterDirection()
-    {
-        if (moveInput.x == 0) return;
-
-        Vector3 newScale = transform.localScale;
-        newScale.x = moveInput.x > 0 ? 1 : -1;
-
-        transform.localScale = newScale;
-    }
-    private void StopCharacter(InputAction.CallbackContext context)
-    {
-        CancelMovement();
+        if (!isHanging || moveInput.x != 0) 
+        {
+            anim.SetBool("Moving", true);
+            DetermineCharacterDirection();
+        } else {
+            anim.SetBool("Moving", false);
+        }
     }
 
     private void Jump(InputAction.CallbackContext context)
@@ -121,15 +113,6 @@ public class PlayerMovement : MonoBehaviour {
         }
         
         ApplyJump(upSpeed);
-    }
-
-    public void ApplyJump(float force)
-    {
-        isJumping = true;
-        canJump = false;
-
-        initialJumpPosition = transform.position.y;
-        rb.velocity = new Vector2(rb.velocity.x, force);
     }
 
     private void Dash(InputAction.CallbackContext context)
@@ -162,10 +145,33 @@ public class PlayerMovement : MonoBehaviour {
         playerActions.ThrowHammer();
     }
 
+    private void DetermineCharacterDirection()
+    {
+        if (moveInput.x == 0) return;
+
+        Vector3 newScale = transform.localScale;
+        newScale.x = moveInput.x > 0 ? 1 : -1;
+
+        transform.localScale = newScale;
+    }
+    private void StopCharacter(InputAction.CallbackContext context)
+    {
+        CancelMovement();
+    }
+
     private void CancelMovement()
     {
         moveInput = Vector2.zero;
-        // anim.SetBool("Moving", false);
+        anim.SetBool("Moving", false);
+    }
+
+    public void ApplyJump(float force)
+    {
+        isJumping = true;
+        canJump = false;
+
+        initialJumpPosition = transform.position.y;
+        rb.velocity = new Vector2(rb.velocity.x, force);
     }
 
     public void Comboing(float moveSpeedDecrease)
@@ -290,4 +296,10 @@ public class PlayerMovement : MonoBehaviour {
     //     audioSource.time = 1.88f;
     //     audioSource.Play();
     // }
+
+    private void TriggerAnimation(string triggerName)
+    {
+        anim.SetTrigger(triggerName);
+        anim.ResetTrigger(triggerName);
+    }
 }
