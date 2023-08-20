@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour {
     public float speed;
     public float jumpSpeed = 35f;
     public float jumpHeight = 5f;
+    public float catapultSpeed = 50f;
+    public float catapultHeight = 8f;
     
     public float dashSpeed = 20f;
     public float dashDuration = 0.07f;
@@ -87,6 +89,11 @@ public class PlayerMovement : MonoBehaviour {
         moveInput = context.ReadValue<Vector2>();
         // anim.SetBool("Moving", true);
 
+        if (!isHanging) DetermineCharacterDirection();
+    }
+
+    private void DetermineCharacterDirection()
+    {
         if (moveInput.x == 0) return;
 
         Vector3 newScale = transform.localScale;
@@ -104,8 +111,16 @@ public class PlayerMovement : MonoBehaviour {
         if (!canJump || isDashing || isSmashing) return;
 
         if (isComboing) StopComboing();
+
+        float upSpeed = jumpSpeed;
+
+        if (isHanging)
+        {
+            Unhang();
+            upSpeed = catapultSpeed;
+        }
         
-        ApplyJump(jumpSpeed);
+        ApplyJump(upSpeed);
     }
 
     public void ApplyJump(float force)
@@ -128,6 +143,13 @@ public class PlayerMovement : MonoBehaviour {
     private void DoAction(InputAction.CallbackContext context)
     {
         if (isDashing || isSmashing) return;
+
+        if (isHanging)
+        {
+            transform.localScale *= new Vector2(-1,1);
+            Unhang();
+            playerActions.wallInRange = false;
+        }
             
         
         playerActions.DoAction(moveInput.y, isGrounded);
@@ -137,7 +159,7 @@ public class PlayerMovement : MonoBehaviour {
     {
         if (isDashing || isSmashing || isHanging) return;
 
-        playerMoveActions.DoAction();
+        playerActions.ThrowHammer();
     }
 
     private void CancelMovement()
@@ -210,9 +232,20 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
-    public void Hang(bool hanging)
+    public void Hang()
     {
-        isHanging = hanging;
+        isHanging = true;
+        rb.gravityScale = 0;
+        rb.velocity = Vector2.zero;
+        isJumping = false;
+        canJump = true;
+    }
+
+    public void Unhang()
+    {
+        isHanging = false;
+        rb.gravityScale = originalGravityScale;
+        DetermineCharacterDirection();
     }
 
     private IEnumerator DashCoroutine()

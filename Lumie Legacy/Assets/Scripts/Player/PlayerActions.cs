@@ -13,6 +13,10 @@ public class PlayerActions : MonoBehaviour {
     public float comboMovementSpeed = 5f;
     public float hammerJumpForce = 15f;
     public float hammerSmashSpeed = 15f;
+    public float throwDistance = 10f;
+    public float throwCooldown = 2f; // Cooldown duration in seconds
+    private float nextThrowTime = 0f; // The next time the player can throw
+    private bool canThrow = true;
     public int airComboCount, groundComboCount = 0;
 
     public List<GameObject> enemiesInRange = new List<GameObject>();
@@ -34,15 +38,7 @@ public class PlayerActions : MonoBehaviour {
         }
         if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
         {
-            wallPosition = other.ClosestPoint(transform.position);
             wallInRange = true;
-        }
-    }
-
-    private void OnTriggerStay2D(Collider2D other) {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
-        {
-            wallPosition = other.ClosestPoint(transform.position);
         }
     }
 
@@ -153,6 +149,45 @@ public class PlayerActions : MonoBehaviour {
     {
         hammerJump = false;
         airComboCount = 0;
+        canThrow = true;
+    }
+
+    public void ThrowHammer()
+    {
+        if (Time.time < nextThrowTime || !canThrow) return;
+
+        // Determine the direction of the wall relative to the player
+        Vector2 throwDirection = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
+
+        // Cast a ray from the player in the direction of the wall
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, throwDirection, throwDistance, LayerMask.GetMask("Environment"));
+
+        Vector2 rayEndpoint = (Vector2)transform.position + throwDirection * throwDistance;
+
+        // The point where the hammer would contact the wall
+        Vector2 contactPoint = hit.collider != null ? hit.point : rayEndpoint;
+
+        // Define the specific distance you want the player to be from the wall
+        float desiredDistanceFromWall = 1.5f; // Adjust this value as needed
+
+        // Calculate the desired player position based on the contact point and specific distance
+        Vector2 desiredPosition = contactPoint - throwDirection * desiredDistanceFromWall;
+
+        // Draw lines for debugging
+        Debug.DrawLine(transform.position, contactPoint, Color.red, 2f);
+        Debug.DrawLine(contactPoint, desiredPosition, Color.blue, 2f);
+
+        // Set the player's position
+        transform.position = desiredPosition;
+
+        // If the ray hits the wall
+        if (hit.collider != null)
+        {
+            playerMovement.Hang();
+        }
+
+        nextThrowTime = Time.time + throwCooldown;
+        canThrow = false;
     }
 
     private IEnumerator Comboing()
@@ -164,39 +199,7 @@ public class PlayerActions : MonoBehaviour {
 
         if (wallInRange)
         {
-            playerMovement.Hang(true);
-
-            // Disable gravity
-            rb.gravityScale = 0;
-
-            // Determine the direction of the wall relative to the player
-            Vector2 directionToWall = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
-
-            // Cast a ray from the player in the direction of the wall
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToWall, hammerRange.bounds.extents.x * 3.5f, LayerMask.GetMask("Environment"));
-
-            // If the ray hits the wall
-            if (hit.collider != null)
-            {
-                // The point where the hammer would contact the wall
-                Vector2 contactPoint = hit.point;
-
-                // Define the specific distance you want the player to be from the wall
-                float desiredDistanceFromWall = 1.5f; // Adjust this value as needed
-
-                // Calculate the desired player position based on the contact point and specific distance
-                Vector2 desiredPosition = contactPoint - directionToWall * desiredDistanceFromWall;
-
-                // Draw lines for debugging
-                Debug.DrawLine(transform.position, contactPoint, Color.red, 2f);
-                Debug.DrawLine(contactPoint, desiredPosition, Color.blue, 2f);
-
-                // Set the player's position
-                transform.position = desiredPosition;
-
-                // You may also want to set the player's velocity to zero to stop them from moving
-                rb.velocity = Vector2.zero;
-            }
+            
         }
         else 
         {
