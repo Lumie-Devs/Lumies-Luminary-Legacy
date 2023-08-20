@@ -34,6 +34,7 @@ public class PlayerMovement : MonoBehaviour {
     public bool isJumping = false;
     public bool isComboing = false;
     public bool isSmashing = false;
+    public bool isHanging = false;
     private float initialJumpPosition;
     private float originalGravityScale;
 
@@ -118,10 +119,10 @@ public class PlayerMovement : MonoBehaviour {
 
     private void Dash(InputAction.CallbackContext context)
     {
-        if (canDash && moveInput.x != 0)
-        {
-            StartCoroutine(DashCoroutine());
-        }
+        if (!canDash || moveInput.x == 0 || isHanging) return;
+        
+        StartCoroutine(DashCoroutine());
+        
     }
 
     private void DoAction(InputAction.CallbackContext context)
@@ -134,7 +135,7 @@ public class PlayerMovement : MonoBehaviour {
 
     private void DoMoveAction(InputAction.CallbackContext context)
     {
-        if (isDashing || isSmashing) return;
+        if (isDashing || isSmashing || isHanging) return;
 
         playerMoveActions.DoAction();
     }
@@ -175,7 +176,7 @@ public class PlayerMovement : MonoBehaviour {
 
     private void Movement()
     {
-        if (isDashing) return;
+        if (isDashing || isHanging) return;
 
         float moveX = moveInput.x * speed;
         float moveY = isComboing ? 0 : rb.velocity.y;
@@ -207,6 +208,11 @@ public class PlayerMovement : MonoBehaviour {
             rb.velocity = new Vector2(rb.velocity.x, 0f);
             isJumping = false; // Reset jumping flag
         }
+    }
+
+    public void Hang(bool hanging)
+    {
+        isHanging = hanging;
     }
 
     private IEnumerator DashCoroutine()

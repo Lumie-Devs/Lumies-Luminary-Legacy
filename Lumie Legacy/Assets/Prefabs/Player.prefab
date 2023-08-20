@@ -45,7 +45,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 1.0154638, y: 0}
+  m_Offset: {x: 1.0310225, y: 0.15907511}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -56,7 +56,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.1194668, y: 1}
+  m_Size: {x: 1.0883493, y: 0.5694613}
   m_EdgeRadius: 0
 --- !u!1 &3488714899180237551
 GameObject:
@@ -442,6 +442,7 @@ MonoBehaviour:
   isJumping: 0
   isComboing: 0
   isSmashing: 0
+  isHanging: 0
 --- !u!114 &6755328388212116979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -467,9 +468,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerMovement: {fileID: 9014407370860298437}
+  hammerRange: {fileID: 6973945206666874179}
   comboGap: 0.5
   comboMovementSpeed: 5
   hammerJumpForce: 15
   hammerSmashSpeed: 25
   airComboCount: 0
   groundComboCount: 0
+  enemiesInRange: []
+  wallInRange: 0
