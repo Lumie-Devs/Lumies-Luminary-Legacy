@@ -5,7 +5,6 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour {
 
     [SerializeField] private PlayerActions playerActions;
-    [SerializeField] private PlayerMoveActions playerMoveActions;
     private InputActions actions;
     private Rigidbody2D rb;
     private Animator anim;
@@ -195,6 +194,7 @@ public class PlayerMovement : MonoBehaviour {
         isJumping = false;
         rb.velocity = new Vector2(rb.velocity.x, 0);
         rb.AddForce(Vector2.down * smashSpeed, ForceMode2D.Impulse);
+        anim.SetTrigger("Smash");
     }
 
     private void FixedUpdate()

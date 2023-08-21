@@ -10,9 +10,9 @@ public class PlayerActions : MonoBehaviour {
     private Animator anim;
     [SerializeField] private Collider2D hammerRange;
 
-    public float comboGap = .5f;
+    public float comboGap = .7f;
     public float comboMovementSpeed = 5f;
-    public float comboCooldown = .1f;
+    public float comboCooldown = .3f;
     public float hammerJumpForce = 15f;
     public float hammerSmashSpeed = 15f;
     public float throwDistance = 10f;
@@ -59,9 +59,13 @@ public class PlayerActions : MonoBehaviour {
 
     public void DoAction(float inputY, bool isGrounded)
     {
+        if (!canCombo) return;
+
         if (isGrounded) GroundCombos(inputY);
 
         else AirCombos(inputY);
+
+        StartCoroutine(ComboCooldown());
     }
 
     private void GroundCombos(float inputY)
@@ -128,14 +132,13 @@ public class PlayerActions : MonoBehaviour {
             StopCoroutine(combo);
             playerMovement.StopComboing();
             HammerSmash();
-            airComboCount++;
             break;
             default:
             return;
         }
 
         airComboCount++;
-        // anim.SetInteger("Combo", airComboCount);
+        anim.SetInteger("Air Combo", airComboCount);
     }
 
     private void HammerJump()
@@ -219,14 +222,16 @@ public class PlayerActions : MonoBehaviour {
 
         
         groundComboCount = 0;
-        anim.SetInteger("Combo", groundComboCount);
+        anim.SetInteger("Combo", 0);
+        anim.SetInteger("Air Combo", 0);
 
         yield return null;
     }
 
-    private void TriggerAnimation(string triggerName)
+    private IEnumerator ComboCooldown()
     {
-        anim.SetTrigger(triggerName);
-        anim.ResetTrigger(triggerName);
+        canCombo = false; // Disable combo actions
+        yield return new WaitForSeconds(comboCooldown); // Wait for cooldown time
+        canCombo = true; // Re-enable combo actions
     }
 }
