@@ -12,12 +12,14 @@ public class PlayerActions : MonoBehaviour {
 
     public float comboGap = .5f;
     public float comboMovementSpeed = 5f;
+    public float comboCooldown = .1f;
     public float hammerJumpForce = 15f;
     public float hammerSmashSpeed = 15f;
     public float throwDistance = 10f;
     public float throwCooldown = 2f; // Cooldown duration in seconds
     private float nextThrowTime = 0f; // The next time the player can throw
     private bool canThrow = true;
+    private bool canCombo = true;
     public int airComboCount, groundComboCount = 0;
 
     public List<GameObject> enemiesInRange = new List<GameObject>();
@@ -99,11 +101,12 @@ public class PlayerActions : MonoBehaviour {
         }
 
         groundComboCount++;
+        anim.SetInteger("Combo", groundComboCount);
     }
 
     private void UppercutSwing()
     {
-        TriggerAnimation("Uppercut");
+        anim.SetTrigger("Uppercut");
     }
 
     private void HammerPound()
@@ -132,6 +135,7 @@ public class PlayerActions : MonoBehaviour {
         }
 
         airComboCount++;
+        // anim.SetInteger("Combo", airComboCount);
     }
 
     private void HammerJump()
@@ -205,6 +209,7 @@ public class PlayerActions : MonoBehaviour {
         }
         else 
         {
+
             playerMovement.Comboing(comboMovementSpeed);
 
             yield return new WaitForSeconds(comboGap);
@@ -214,6 +219,7 @@ public class PlayerActions : MonoBehaviour {
 
         
         groundComboCount = 0;
+        anim.SetInteger("Combo", groundComboCount);
 
         yield return null;
     }

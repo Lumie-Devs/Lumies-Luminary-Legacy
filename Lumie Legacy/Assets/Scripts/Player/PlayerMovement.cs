@@ -87,15 +87,18 @@ public class PlayerMovement : MonoBehaviour {
     private void MoveCharacter(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
-        
 
-        if (!isHanging || moveInput.x != 0) 
-        {
-            anim.SetBool("Moving", true);
+        bool isMoving = !isHanging && moveInput.x != 0;
+        anim.SetBool("Moving", isMoving);
+
+        if (isMoving) {
             DetermineCharacterDirection();
-        } else {
-            anim.SetBool("Moving", false);
         }
+    }
+
+    private void StopCharacter(InputAction.CallbackContext context)
+    {
+        CancelMovement();
     }
 
     private void Jump(InputAction.CallbackContext context)
@@ -110,6 +113,8 @@ public class PlayerMovement : MonoBehaviour {
         {
             Unhang();
             upSpeed = catapultSpeed;
+        } else {
+            anim.SetTrigger("Jump");
         }
         
         ApplyJump(upSpeed);
@@ -120,7 +125,7 @@ public class PlayerMovement : MonoBehaviour {
         if (!canDash || moveInput.x == 0 || isHanging) return;
         
         StartCoroutine(DashCoroutine());
-        
+        BreakJump();
     }
 
     private void DoAction(InputAction.CallbackContext context)
@@ -134,7 +139,7 @@ public class PlayerMovement : MonoBehaviour {
             playerActions.wallInRange = false;
         }
             
-        
+        BreakJump();
         playerActions.DoAction(moveInput.y, isGrounded);
     }
 
@@ -142,6 +147,7 @@ public class PlayerMovement : MonoBehaviour {
     {
         if (isDashing || isSmashing || isHanging) return;
 
+        BreakJump();
         playerActions.ThrowHammer();
     }
 
@@ -153,10 +159,6 @@ public class PlayerMovement : MonoBehaviour {
         newScale.x = moveInput.x > 0 ? 1 : -1;
 
         transform.localScale = newScale;
-    }
-    private void StopCharacter(InputAction.CallbackContext context)
-    {
-        CancelMovement();
     }
 
     private void CancelMovement()
@@ -209,6 +211,7 @@ public class PlayerMovement : MonoBehaviour {
         float moveX = moveInput.x * speed;
         float moveY = isComboing ? 0 : rb.velocity.y;
         rb.velocity = new Vector2(moveX, moveY);
+        anim.SetBool("Grounded", isGrounded);
     }
 
     private void GroundCheck()
@@ -234,7 +237,7 @@ public class PlayerMovement : MonoBehaviour {
         if (isJumping && transform.position.y >= initialJumpPosition + jumpHeight)
         {
             rb.velocity = new Vector2(rb.velocity.x, 0f);
-            isJumping = false; // Reset jumping flag
+            BreakJump();
         }
     }
 
@@ -243,7 +246,6 @@ public class PlayerMovement : MonoBehaviour {
         isHanging = true;
         rb.gravityScale = 0;
         rb.velocity = Vector2.zero;
-        isJumping = false;
         canJump = true;
     }
 
@@ -297,9 +299,10 @@ public class PlayerMovement : MonoBehaviour {
     //     audioSource.Play();
     // }
 
-    private void TriggerAnimation(string triggerName)
+    public void BreakJump()
     {
-        anim.SetTrigger(triggerName);
-        anim.ResetTrigger(triggerName);
+        anim.ResetTrigger("Jump");
+        isJumping = false;
+
     }
 }
