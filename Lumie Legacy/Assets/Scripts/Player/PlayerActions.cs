@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class PlayerActions : MonoBehaviour {
     [SerializeField] private PlayerMovement playerMovement;
-    private Rigidbody2D rb;
     private Animator anim;
     [SerializeField] private Collider2D hammerRange;
 
@@ -28,10 +27,7 @@ public class PlayerActions : MonoBehaviour {
     private Coroutine combo;
     private bool hammerJump = false;
 
-    private Vector2 wallPosition;
-
     private void Start() {
-        rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
     }
 
@@ -203,7 +199,7 @@ public class PlayerActions : MonoBehaviour {
     {
         foreach(GameObject g in enemiesInRange)
         {
-            // do stuff to enemies
+            g.GetComponent<Enemy>().Attacked();
         }
 
         if (wallInRange)
