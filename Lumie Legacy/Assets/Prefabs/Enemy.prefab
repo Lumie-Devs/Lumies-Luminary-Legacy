@@ -148,8 +148,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 10
   health: 0
-  hitDuration: 0.2
+  hitDuration: 0.5
+  knockbackDistance: 0.2
   detectRange: 20
   neutralSpeed: 5
+  hostileSpeed: 7
   patrolDistance: 5
+  wallCheckDistance: 1
   state: 0

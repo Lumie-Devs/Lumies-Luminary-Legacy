@@ -7,7 +7,7 @@ using UnityEngine;
 public class PlayerActions : MonoBehaviour {
     [SerializeField] private PlayerMovement playerMovement;
     private Animator anim;
-    [SerializeField] private Collider2D hammerRange;
+    [SerializeField] private BoxCollider2D hammerRange;
 
     public float comboGap = .7f;
     public float comboMovementSpeed = 5f;
@@ -197,9 +197,19 @@ public class PlayerActions : MonoBehaviour {
 
     private IEnumerator Comboing()
     {
-        foreach(GameObject g in enemiesInRange)
+        // Retrieve the properties of your BoxCollider2D
+        Vector2 boxPosition = hammerRange.transform.position;
+        Vector2 boxSize = hammerRange.size;
+
+        // Get all colliders that intersect with your BoxCollider2D
+        Collider2D[] collidersInRange = Physics2D.OverlapBoxAll(boxPosition, boxSize, 0);
+
+        foreach (Collider2D col in collidersInRange)
         {
-            g.GetComponent<Enemy>().Attacked();
+            if (col.gameObject.CompareTag("Enemy"))
+            {
+                col.GetComponent<Enemy>().Attacked(transform.position.x);
+            }
         }
 
         if (wallInRange)
