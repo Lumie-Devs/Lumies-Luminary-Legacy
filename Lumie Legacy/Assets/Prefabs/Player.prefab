@@ -366,6 +366,7 @@ MonoBehaviour:
   dashSpeed: 30
   dashDuration: 0.1
   dashCooldown: 0.5
+  stunDuration: 0.3
   groundCheckDistance: 0.07
   leftCheck: {fileID: 9194624123663352119}
   middleCheck: {fileID: 1406185939133615266}
@@ -398,6 +399,7 @@ MonoBehaviour:
   comboGap: 0.7
   comboMovementSpeed: 5
   comboCooldown: 0.15
+  comboDamage: 4
   hammerJumpForce: 15
   hammerSmashSpeed: 25
   throwDistance: 10
@@ -418,3 +420,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e365488be66e384cb699c26a4e5d0fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerMovement: {fileID: 9014407370860298437}
+  maxHealth: 10
+  health: 0

@@ -22,6 +22,8 @@ public class PlayerMovement : MonoBehaviour {
     public float dashDuration = 0.07f;
     public float dashCooldown = .5f;
 
+    public float stunDuration = .3f;
+
     public float groundCheckDistance = 0.1f;
     public Transform leftCheck;
     public Transform middleCheck;
@@ -308,5 +310,37 @@ public class PlayerMovement : MonoBehaviour {
         anim.ResetTrigger("Jump");
         isJumping = false;
 
+    }
+
+    public void Hit()
+    {
+        StartCoroutine(HitStun());
+    }
+
+    private IEnumerator HitStun()
+    {
+        actions.Player.Disable();
+
+        float knockbackDistance = 2f;
+        
+        Vector3 startPos = transform.position;
+        Vector3 endPos = startPos - new Vector3(transform.localScale.x, 0, 0).normalized * knockbackDistance;
+
+        float elapsed = 0f;
+
+        while (elapsed < stunDuration)
+        {
+            float t = elapsed / stunDuration;
+            // Apply Quadratic Ease-Out function to t
+            float easedT = -(t * (t - 2));
+            transform.position = Vector3.Lerp(startPos, endPos, easedT);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Make sure the position ends up at endPos.
+        transform.position = endPos;
+
+        actions.Player.Enable();
     }
 }

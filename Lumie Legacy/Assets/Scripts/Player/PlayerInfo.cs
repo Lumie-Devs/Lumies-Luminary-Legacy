@@ -4,6 +4,8 @@ public class PlayerInfo : MonoBehaviour {
     public static PlayerInfo Instance;
     public static Transform playerTransform;
 
+    [SerializeField] private PlayerMovement playerMovement;
+
     public int maxHealth = 10;
     public int health;
 
@@ -25,6 +27,9 @@ public class PlayerInfo : MonoBehaviour {
         if (health <= 0)
         {
             Die();
+        } else 
+        {
+            playerMovement.Hit();
         }
     }
 
