@@ -5,7 +5,10 @@ using UnityEngine;
 public class Enemy : MonoBehaviour {
     public int maxHealth = 10;
     public int health;
+    public int damage = 2;
     public float hitDuration = .2f;
+    public float hitRange = 1f;
+    public float attackSpeed = .3f;
     public float knockbackDistance = .2f;
     public float detectRange = 20f;
     public float neutralSpeed = 5f; // How fast the enemy moves along the path
@@ -15,8 +18,10 @@ public class Enemy : MonoBehaviour {
 
     protected float currentPatrolDistance = 0; // How far the enemy has currently patrolled
     protected float directionFactor = 1; // Whether the enemy is currently moving forwards (1) or backwards (-1)
+    protected bool isAttacking = false;
 
-    protected Transform player;
+    protected Transform playerTransform;
+    protected PlayerInfo player;
     protected Coroutine currentRoutine;
     public EnemyState state = EnemyState.Neutral;
 
@@ -32,6 +37,7 @@ public class Enemy : MonoBehaviour {
     protected virtual void Start() {
         health = maxHealth;
         player = PlayerInfo.Instance;
+        playerTransform = PlayerInfo.playerTransform;
 
         currentRoutine = StartCoroutine(NeutralMovement());
     }
@@ -44,18 +50,18 @@ public class Enemy : MonoBehaviour {
     {
         StartCoroutine(SearchForPlayer());
 
+        // Get the layer number for "Environment"
+        int layerNumber = LayerMask.NameToLayer("Environment");
+
+        // Create a layer mask that includes only the "Environment" layer
+        int layerMask = 1 << layerNumber;
+
         while (true)
         {
             Vector3 moveVector = new Vector3(neutralSpeed * directionFactor, 0, 0);
 
             transform.position += moveVector * Time.deltaTime;
             currentPatrolDistance += neutralSpeed * Time.deltaTime;
-
-            // Get the layer number for "Environment"
-            int layerNumber = LayerMask.NameToLayer("Environment");
-
-            // Create a layer mask that includes only the "Environment" layer
-            int layerMask = 1 << layerNumber;
 
             // Raycast in the move direction to check for barriers
             RaycastHit2D hit = Physics2D.Raycast(transform.position, moveVector.normalized, wallCheckDistance, layerMask);
@@ -72,28 +78,44 @@ public class Enemy : MonoBehaviour {
 
     protected virtual IEnumerator HostileMovement()
     {
+        // Get the layer number for "Environment"
+        int layerNumber = LayerMask.NameToLayer("Environment");
+
+        // Create a layer mask that includes only the "Environment" layer
+        int layerMask = 1 << layerNumber;
+
         while (true)
         {
-            Vector3 moveVector = new Vector3(hostileSpeed * GetPlayerDirection(), 0, 0);
+            while (!isAttacking)
+            {
+                Vector3 moveVector = new(hostileSpeed * GetPlayerDirection(), 0, 0);
 
-            transform.position += moveVector * Time.deltaTime;
+                // Raycast in the move direction to check for barriers
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, moveVector.normalized, wallCheckDistance, layerMask);
 
-            // Get the layer number for "Environment"
-            int layerNumber = LayerMask.NameToLayer("Environment");
+                if (hit.collider != null) isAttacking = true;
 
-            // Create a layer mask that includes only the "Environment" layer
-            int layerMask = 1 << layerNumber;
+                transform.position += moveVector * Time.deltaTime;
 
-            // Raycast in the move direction to check for barriers
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, moveVector.normalized, wallCheckDistance, layerMask);
+                if (Vector3.Distance(playerTransform.position, transform.position) <= hitRange) Attack();
 
-            if (hit.collider != null) break;
+                yield return null;
+            }
 
-            yield return null;
+            isAttacking = false;
+
+            yield return new WaitForSeconds(attackSpeed);
         }
     }
 
-    public virtual void Attacked(float hitDirection)
+    public virtual void Attack()
+    {
+        player.Attacked(damage);
+
+        isAttacking = true;
+    }
+
+    public virtual void Attacked(int damage, float hitDirection)
     {
         StopCoroutine(currentRoutine);
 
@@ -106,7 +128,7 @@ public class Enemy : MonoBehaviour {
             break;
 
             default:
-            currentRoutine = StartCoroutine(Hit());
+            currentRoutine = StartCoroutine(Hit(damage));
             
             break;
         }
@@ -129,12 +151,12 @@ public class Enemy : MonoBehaviour {
 
     protected virtual bool PlayerSearch()
     {
-        return Vector3.Distance(player.position, transform.position) < detectRange;
+        return Vector3.Distance(playerTransform.position, transform.position) <= detectRange;
     }
 
     protected virtual int GetPlayerDirection()
     {
-        return GetDirection(player.position.x);
+        return GetDirection(playerTransform.position.x);
     }
 
     protected virtual int GetDirection(float direction)
@@ -148,9 +170,13 @@ public class Enemy : MonoBehaviour {
         return d;
     }
 
-    protected virtual IEnumerator Hit()
+    protected virtual IEnumerator Hit(int damage)
     {
         state = EnemyState.Hit;
+
+        health -= damage;
+
+        if (health <= 0) Death();
 
         yield return new WaitForSeconds(hitDuration);
 
@@ -161,5 +187,11 @@ public class Enemy : MonoBehaviour {
     protected virtual IEnumerator Launch(float hitDirection)
     {
         yield return null;
+    }
+
+    protected virtual void Death()
+    {
+        StopAllCoroutines();
+        Destroy(gameObject);
     }
 }
