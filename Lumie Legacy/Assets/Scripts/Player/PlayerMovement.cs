@@ -241,11 +241,15 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+    public void HammerThrow()
+    {
+        rb.velocity = Vector2.zero;
+    }
+
     public void Hang()
     {
         isHanging = true;
         rb.gravityScale = 0;
-        rb.velocity = Vector2.zero;
         canJump = true;
     }
 

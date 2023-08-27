@@ -12,6 +12,7 @@ public class PlayerActions : MonoBehaviour {
     public float comboGap = .7f;
     public float comboMovementSpeed = 5f;
     public float comboCooldown = .3f;
+    public int comboDamage = 4;
     public float hammerJumpForce = 15f;
     public float hammerSmashSpeed = 15f;
     public float throwDistance = 10f;
@@ -32,10 +33,6 @@ public class PlayerActions : MonoBehaviour {
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.CompareTag("Enemy"))
-        {
-            enemiesInRange.Add(other.gameObject);
-        }
         if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
         {
             wallInRange = true;
@@ -43,10 +40,6 @@ public class PlayerActions : MonoBehaviour {
     }
 
     private void OnTriggerExit2D(Collider2D other) {
-        if (other.gameObject.CompareTag("Enemy"))
-        {
-            enemiesInRange.Remove(other.gameObject);
-        }
         if (other.gameObject.layer == LayerMask.NameToLayer("Environment"))
         {
             wallInRange = false;
@@ -173,7 +166,7 @@ public class PlayerActions : MonoBehaviour {
         Vector2 contactPoint = hit.collider != null ? hit.point : rayEndpoint;
 
         // Define the specific distance you want the player to be from the wall
-        float desiredDistanceFromWall = 1.5f; // Adjust this value as needed
+        float desiredDistanceFromWall = 1.5f;
 
         // Calculate the desired player position based on the contact point and specific distance
         Vector2 desiredPosition = contactPoint - throwDirection * desiredDistanceFromWall;
@@ -181,6 +174,8 @@ public class PlayerActions : MonoBehaviour {
         // Draw lines for debugging
         Debug.DrawLine(transform.position, contactPoint, Color.red, 2f);
         Debug.DrawLine(contactPoint, desiredPosition, Color.blue, 2f);
+
+        playerMovement.HammerThrow();
 
         // Set the player's position
         transform.position = desiredPosition;
@@ -208,7 +203,7 @@ public class PlayerActions : MonoBehaviour {
         {
             if (col.gameObject.CompareTag("Enemy"))
             {
-                col.GetComponent<Enemy>().Attacked(transform.position.x);
+                col.GetComponent<Enemy>().Attacked(comboDamage, transform.position.x);
             }
         }
 
@@ -232,6 +227,19 @@ public class PlayerActions : MonoBehaviour {
         anim.SetInteger("Air Combo", 0);
 
         yield return null;
+    }
+
+    void OnDrawGizmos()
+    {
+        // Set the Gizmo color
+        Gizmos.color = Color.red;
+
+        // Retrieve the properties of your BoxCollider2D
+        Vector2 boxPosition = hammerRange.transform.position;
+        Vector2 boxSize = hammerRange.size;
+
+        // Draw a wire cube at the position and dimensions of your BoxCollider2D
+        Gizmos.DrawWireCube(boxPosition, boxSize);
     }
 
     private IEnumerator ComboCooldown()
