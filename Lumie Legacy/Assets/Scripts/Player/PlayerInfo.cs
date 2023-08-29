@@ -20,7 +20,7 @@ public class PlayerInfo : MonoBehaviour {
         health = maxHealth;
     }
 
-    public void ToggleAction(bool b)
+    public void SetActiveInput(bool b)
     {
         playerMovement.enabled = b;
     }

@@ -34,13 +34,13 @@ public class PauseManager : MonoBehaviour {
     public void Resume() {
         Time.timeScale = 1; 
         pauseUI.SetActive(false);
-        PlayerInfo.Instance.ToggleAction(true);
+        PlayerInfo.Instance.SetActiveInput(true);
     }
 
     private void Pause() {
         Time.timeScale = 0; 
         pauseUI.SetActive(true);
-        PlayerInfo.Instance.ToggleAction(false);
+        PlayerInfo.Instance.SetActiveInput(false);
     }
 
     public void SaveGame()

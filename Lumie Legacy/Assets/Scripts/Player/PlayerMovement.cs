@@ -90,7 +90,7 @@ public class PlayerMovement : MonoBehaviour {
     {
         moveInput = context.ReadValue<Vector2>();
 
-        bool isMoving = !isHanging && moveInput.x != 0;
+        bool isMoving = !isHanging && Math.Abs(moveInput.x) >= .06f;
         anim.SetBool("Moving", isMoving);
 
         if (isMoving) {

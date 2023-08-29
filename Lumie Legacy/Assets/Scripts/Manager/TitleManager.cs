@@ -1,14 +1,23 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class TitleManager : MonoBehaviour {
     private readonly int firstScene = 1;
+    private InputActions actions;
 
     [SerializeField] private Button loadButton;
 
     private void Awake() {
         loadButton.interactable = SaveSystem.SaveFileExists();
+
+        actions = new InputActions();
+
+        actions.Menu.Enable();
+
+        // actions.Menu.Navigate.performed += ;
+        // actions.Menu.Select.performed += ;
     }
 
     public void StartGame(){
@@ -26,7 +35,7 @@ public class TitleManager : MonoBehaviour {
         }
     }
 
-    private void QuitGame(){
+    public void QuitGame(){
         #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
         #else
