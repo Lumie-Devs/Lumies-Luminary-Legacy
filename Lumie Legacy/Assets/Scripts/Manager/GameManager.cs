@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour {
     public static GameManager Instance;
+    private GameData gameData;
 
     private void Awake() {
         if (Instance == null) {
@@ -13,6 +14,11 @@ public class GameManager : MonoBehaviour {
 
     public void SetGameData(GameData gameData)
     {
-        
+        this.gameData = gameData;
+    }
+
+    public GameData GetGameData()
+    {
+        return gameData;
     }
 }

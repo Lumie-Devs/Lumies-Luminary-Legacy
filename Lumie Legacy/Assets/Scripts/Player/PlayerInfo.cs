@@ -20,6 +20,11 @@ public class PlayerInfo : MonoBehaviour {
         health = maxHealth;
     }
 
+    public void ToggleAction(bool b)
+    {
+        playerMovement.enabled = b;
+    }
+
     public void Attacked(int damage, float hitDirection)
     {
         health -= damage;
