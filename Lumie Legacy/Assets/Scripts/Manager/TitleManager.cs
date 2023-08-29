@@ -5,23 +5,15 @@ using UnityEngine.InputSystem;
 
 public class TitleManager : MonoBehaviour {
     private readonly int firstScene = 1;
-    private InputActions actions;
 
     [SerializeField] private Button loadButton;
 
     private void Awake() {
         loadButton.interactable = SaveSystem.SaveFileExists();
-
-        actions = new InputActions();
-
-        actions.Menu.Enable();
-
-        // actions.Menu.Navigate.performed += ;
-        // actions.Menu.Select.performed += ;
     }
 
     public void StartGame(){
-        SceneManager.LoadScene(firstScene);
+        EnterGame(new GameData(), firstScene);
     }
 
     public void LoadGame()
@@ -29,10 +21,22 @@ public class TitleManager : MonoBehaviour {
         GameData gameData = SaveSystem.LoadGameData(); // Load saved game data
         if(gameData != null)
         {
-            GameManager.Instance.SetGameData(gameData);
-
-            SceneManager.LoadScene(gameData.worldState.currentScene);
+            EnterGame(gameData, gameData.worldState.currentScene);
         }
+    }
+
+    private void EnterGame(GameData gameData, int scene)
+    {
+        GameManager.Instance.SetGameData(gameData);
+
+        SceneManager.LoadScene(scene);
+    }
+
+    public void DeleteGame()
+    {
+        SaveSystem.DeleteSaveData();
+
+        loadButton.interactable = false;
     }
 
     public void QuitGame(){

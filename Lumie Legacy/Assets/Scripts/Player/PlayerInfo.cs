@@ -8,16 +8,24 @@ public class PlayerInfo : MonoBehaviour {
 
     public int maxHealth = 10;
     public int health;
+    public float distanceAboveGround = .35f;
 
     private void Awake() {
-        if (Instance == null) {
-            Instance = this;
-            playerTransform = transform;
-        } else {
-            Destroy(gameObject);
-        }
+        Instance = this;
+        playerTransform = transform;
+    }
 
+    private void Start() {
+        InitializePlayer();
+    }
+
+    private void InitializePlayer()
+    {
         health = maxHealth;
+
+        Vector2 spawnLocation = GameManager.Instance.GetPlayerData().spawnLocation;
+
+        transform.position = new(spawnLocation.x, spawnLocation.y + distanceAboveGround);
     }
 
     public void SetActiveInput(bool b)
