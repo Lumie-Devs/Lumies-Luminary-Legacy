@@ -399,7 +399,7 @@ MonoBehaviour:
   comboGap: 0.7
   comboMovementSpeed: 5
   comboCooldown: 0.15
-  comboDamage: 4
+  comboDamage: 2
   hammerJumpForce: 15
   hammerSmashSpeed: 25
   throwDistance: 10

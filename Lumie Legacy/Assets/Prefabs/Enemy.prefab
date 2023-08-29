@@ -149,10 +149,12 @@ MonoBehaviour:
   maxHealth: 10
   health: 0
   damage: 2
-  hitDuration: 0.5
+  hitStunDuration: 0.4
   hitRange: 1.8
   attackSpeed: 0.5
-  knockbackDistance: 0.2
+  knockbackDistance: 6
+  knockbackHeight: 2
+  knockbackSpeed: 12
   detectRange: 20
   neutralSpeed: 5
   hostileSpeed: 7

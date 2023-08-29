@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -312,34 +313,47 @@ public class PlayerMovement : MonoBehaviour {
 
     }
 
-    public void Hit()
+    public void Hit(float hitDirection)
     {
-        StartCoroutine(HitStun());
+        int direction = Math.Sign(hitDirection - transform.position.x);
+
+        StartCoroutine(HitStun(direction));
     }
 
-    private IEnumerator HitStun()
+    private IEnumerator HitStun(float hitDirection)
     {
         actions.Player.Disable();
 
         float knockbackDistance = 2f;
         
         Vector3 startPos = transform.position;
-        Vector3 endPos = startPos - new Vector3(transform.localScale.x, 0, 0).normalized * knockbackDistance;
+        Vector3 endPos = startPos - new Vector3(hitDirection, 0, 0) * knockbackDistance;
 
         float elapsed = 0f;
 
-        while (elapsed < stunDuration)
+        // Get the layer number for "Environment"
+        int layerNumber = LayerMask.NameToLayer("Environment");
+        
+        // Create a layer mask that includes only the "Environment" layer
+        int layerMask = 1 << layerNumber;
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(hitDirection, 0), 2f, layerMask);
+
+        while (elapsed < stunDuration && hit.collider == null)
         {
             float t = elapsed / stunDuration;
             // Apply Quadratic Ease-Out function to t
             float easedT = -(t * (t - 2));
             transform.position = Vector3.Lerp(startPos, endPos, easedT);
             elapsed += Time.deltaTime;
+            hit = Physics2D.Raycast(transform.position, new Vector2(hitDirection, 0), 2f, layerMask);
             yield return null;
         }
 
-        // Make sure the position ends up at endPos.
-        transform.position = endPos;
+        if (hit.collider != null)
+        {
+            yield return new WaitForSeconds(stunDuration - elapsed); 
+        }
 
         actions.Player.Enable();
     }

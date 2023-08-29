@@ -79,15 +79,15 @@ public class PlayerActions : MonoBehaviour {
     {
         switch (groundComboCount){
             case 0:
-            combo = StartCoroutine(Comboing());
+            combo = StartCoroutine(Comboing(0));
             break;
             case 1:
             StopCoroutine(combo);
-            combo = StartCoroutine(Comboing());
+            combo = StartCoroutine(Comboing(1));
             break;
             case 2:
             StopCoroutine(combo);
-            combo = StartCoroutine(Comboing());
+            combo = StartCoroutine(Comboing(2));
             break;
             default:
             return;
@@ -100,6 +100,17 @@ public class PlayerActions : MonoBehaviour {
     private void UppercutSwing()
     {
         anim.SetTrigger("Uppercut");
+
+        // Get all colliders that intersect with your BoxCollider2D
+        Collider2D[] collidersInRange = EnemyCollidersInRange();
+
+        foreach (Collider2D col in collidersInRange)
+        {
+            if (col.gameObject.CompareTag("Enemy"))
+            {
+                col.GetComponent<Enemy>().LaunchedUp(comboDamage, transform.position.x);
+            }
+        }
     }
 
     private void HammerPound()
@@ -111,11 +122,11 @@ public class PlayerActions : MonoBehaviour {
     {
         switch (airComboCount){
             case 0:
-            combo = StartCoroutine(Comboing());
+            combo = StartCoroutine(Comboing(0));
             break;
             case 1:
             StopCoroutine(combo);
-            combo = StartCoroutine(Comboing());
+            combo = StartCoroutine(Comboing(1));
             break;
             case 2:
             StopCoroutine(combo);
@@ -190,22 +201,39 @@ public class PlayerActions : MonoBehaviour {
         canThrow = false;
     }
 
-    private IEnumerator Comboing()
+    private Collider2D[] EnemyCollidersInRange()
     {
-        // Retrieve the properties of your BoxCollider2D
-        Vector2 boxPosition = hammerRange.transform.position;
-        Vector2 boxSize = hammerRange.size;
-
         // Get all colliders that intersect with your BoxCollider2D
-        Collider2D[] collidersInRange = Physics2D.OverlapBoxAll(boxPosition, boxSize, 0);
+        return Physics2D.OverlapBoxAll(hammerRange.transform.position, hammerRange.size, 0);
+    }
 
-        foreach (Collider2D col in collidersInRange)
+    private IEnumerator Comboing(int comboHit)
+    {
+        // Get all colliders that intersect with your BoxCollider2D
+        Collider2D[] collidersInRange = EnemyCollidersInRange();
+
+        if (comboHit < 2)
         {
-            if (col.gameObject.CompareTag("Enemy"))
+            foreach (Collider2D col in collidersInRange)
             {
-                col.GetComponent<Enemy>().Attacked(comboDamage, transform.position.x);
+                if (col.gameObject.CompareTag("Enemy"))
+                {
+                    col.GetComponent<Enemy>().Attacked(comboDamage, transform.position.x);
+                }
+            }
+        } 
+        else 
+        {
+            foreach (Collider2D col in collidersInRange)
+            {
+                if (col.gameObject.CompareTag("Enemy"))
+                {
+                    col.GetComponent<Enemy>().LaunchedBack(comboDamage, transform.position.x);
+                }
             }
         }
+
+        
 
         if (wallInRange)
         {

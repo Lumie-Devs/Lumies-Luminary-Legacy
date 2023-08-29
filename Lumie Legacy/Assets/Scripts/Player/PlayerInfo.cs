@@ -20,7 +20,7 @@ public class PlayerInfo : MonoBehaviour {
         health = maxHealth;
     }
 
-    public void Attacked(int damage)
+    public void Attacked(int damage, float hitDirection)
     {
         health -= damage;
 
@@ -29,7 +29,7 @@ public class PlayerInfo : MonoBehaviour {
             Die();
         } else 
         {
-            playerMovement.Hit();
+            playerMovement.Hit(hitDirection);
         }
     }
 
