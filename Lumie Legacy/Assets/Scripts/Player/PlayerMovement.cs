@@ -357,4 +357,9 @@ public class PlayerMovement : MonoBehaviour {
 
         actions.Player.Enable();
     }
+
+    public void Respawn(Vector2 spawnPoint)
+    {
+        transform.position = new(spawnPoint.x, spawnPoint.y + 1.35f);
+    }
 }
